@@ -1,0 +1,9 @@
+com/school/anecole/dto/RegisterRequestTest.class
+com/school/anecole/dto/AuthResponseTest.class
+com/school/anecole/controller/LessonBuilderControllerTest.class
+com/school/anecole/integration/AuthIntegrationTest.class
+com/school/anecole/integration/LessonBuilderIntegrationTest.class
+com/school/anecole/service/LessonBuilderServiceTest.class
+com/school/anecole/repository/UserRepositoryTest.class
+com/school/anecole/dto/AuthRequestTest.class
+com/school/anecole/model/UserTest.class

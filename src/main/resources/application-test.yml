@@ -1,0 +1,83 @@
+spring:
+  application:
+    name: anecole-backend-test
+  
+  # Database Configuration для тестового стенда
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:db}:${DB_PORT:5432}/${DB_NAME:anecole_test}
+    driver-class-name: org.postgresql.Driver
+    username: ${DB_USERNAME:anecole_user}
+    password: ${DB_PASSWORD:anecole_password}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 20000
+      idle-timeout: 300000
+  
+  # JPA Configuration для тестов
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          lob:
+            non_contextual_creation: true
+  
+  # H2 Console отключена
+  h2:
+    console:
+      enabled: false
+  
+  # Mail Configuration (тестовая)
+  mail:
+    host: ${MAIL_HOST:localhost}
+    port: ${MAIL_PORT:1025}
+    username: ${MAIL_USERNAME:test}
+    password: ${MAIL_PASSWORD:test}
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET:testSecretKeyForAnecoleTestEnvironment2024VeryLongAndSecure}
+  expiration: ${JWT_EXPIRATION:86400000}
+
+# Server Configuration
+server:
+  port: ${SERVER_PORT:8080}
+  servlet:
+    context-path: /api
+
+# Logging для тестового стенда
+logging:
+  level:
+    root: INFO
+    com.school.anecole: DEBUG
+    org.springframework.security: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+# CORS Configuration для тестов
+cors:
+  allowed-origins: ${FRONTEND_URL:http://localhost}
+  allowed-methods: "GET,POST,PUT,DELETE,OPTIONS"
+  allowed-headers: "*"
+  allow-credentials: true
+
+# Actuator для мониторинга
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,env
+  endpoint:
+    health:
+      show-details: always 

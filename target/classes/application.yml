@@ -1,0 +1,97 @@
+spring:
+  application:
+    name: anecole-backend
+  
+  profiles:
+    active: local
+  
+  # Database Configuration
+  datasource:
+    url: jdbc:postgresql://10.10.3.4:5432/School_db
+    driver-class-name: org.postgresql.Driver
+    username: gen_user
+    password: v1gI_oF)o9v*c%3E
+  
+  # JPA Configuration
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  
+  # SQL initialization
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:data.sql
+  
+  # Mail Configuration
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  
+  # Local Database Configuration (Docker)
+  datasource:
+    url: jdbc:postgresql://localhost:5432/School_db
+    driver-class-name: org.postgresql.Driver
+    username: gen_user
+    password: v1gI_oF)o9v*c%3E
+  
+  # JPA Configuration for local
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  
+  # SQL initialization for local
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:data.sql
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET:anecoleSecretKey2024VeryLongAndSecureForProduction}
+  expiration: 86400000 # 24 hours in milliseconds
+
+# Server Configuration
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+# Logging
+logging:
+  level:
+    com.school.anecole: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+# CORS Configuration
+cors:
+  allowed-origins: "http://localhost:3000"
+  allowed-methods: "GET,POST,PUT,DELETE,OPTIONS"
+  allowed-headers: "*"
+  allow-credentials: true 

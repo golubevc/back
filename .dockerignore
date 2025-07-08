@@ -1,0 +1,25 @@
+target/
+!target/*.jar
+*.log
+.git
+.gitignore
+README.md
+Dockerfile
+docker-compose*.yml
+.env*
+*.sh
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Maven
+.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties 

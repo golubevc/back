@@ -1,0 +1,53 @@
+-- Тестовые пользователи
+-- Пароль для всех аккаунтов: "password" (зашифрован с помощью BCrypt, cost factor 10)
+
+-- Студенты
+INSERT INTO users (username, email, password, first_name, last_name, role, grade, school, created_at, enabled, email_verified) VALUES
+('student1', 'student1@school.com', '$2a$10$e0MYzXyjpJS7Pd/FGeIIce6DDQIj8bkUZzrm6p2wyQHHPQY.JzKHa', 'Алексей', 'Иванов', 'STUDENT', 5, 'Школа №1', CURRENT_TIMESTAMP, true, true),
+('student2', 'student2@school.com', '$2a$10$e0MYzXyjpJS7Pd/FGeIIce6DDQIj8bkUZzrm6p2wyQHHPQY.JzKHa', 'Мария', 'Петрова', 'STUDENT', 6, 'Школа №2', CURRENT_TIMESTAMP, true, true),
+('student3', 'student3@school.com', '$2a$10$e0MYzXyjpJS7Pd/FGeIIce6DDQIj8bkUZzrm6p2wyQHHPQY.JzKHa', 'Дмитрий', 'Сидоров', 'STUDENT', 7, 'Школа №1', CURRENT_TIMESTAMP, true, true);
+
+-- Учителя  
+INSERT INTO users (username, email, password, first_name, last_name, role, subject, qualification, created_at, enabled, email_verified) VALUES
+('teacher1', 'teacher1@school.com', '$2a$10$e0MYzXyjpJS7Pd/FGeIIce6DDQIj8bkUZzrm6p2wyQHHPQY.JzKHa', 'Елена', 'Смирнова', 'TEACHER', 'Английский язык', 'Высшее педагогическое', CURRENT_TIMESTAMP, true, true),
+('teacher2', 'teacher2@school.com', '$2a$10$e0MYzXyjpJS7Pd/FGeIIce6DDQIj8bkUZzrm6p2wyQHHPQY.JzKHa', 'Игорь', 'Волков', 'TEACHER', 'Математика', 'Кандидат наук', CURRENT_TIMESTAMP, true, true);
+
+-- Администратор
+INSERT INTO users (username, email, password, first_name, last_name, role, subject, qualification, created_at, enabled, email_verified) VALUES
+('admin', 'admin@school.com', '$2a$10$e0MYzXyjpJS7Pd/FGeIIce6DDQIj8bkUZzrm6p2wyQHHPQY.JzKHa', 'Администратор', 'Системы', 'ADMIN', 'Администрирование', 'Системный администратор', CURRENT_TIMESTAMP, true, true);
+
+-- Тестовые классы
+INSERT INTO classes (name, description, grade, teacher_id, created_at, updated_at, active) VALUES
+('5А', 'Английский язык для 5 класса', 5, 4, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, true),
+('6Б', 'Математика для 6 класса', 6, 5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, true),
+('7В', 'Английский язык для 7 класса', 7, 4, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, true);
+
+-- Связываем студентов с классами
+INSERT INTO class_students (class_id, student_id) VALUES
+(1, 1), -- 5А: Алексей Иванов
+(2, 2), -- 6Б: Мария Петрова  
+(3, 3); -- 7В: Дмитрий Сидоров
+
+-- Тестовые уроки
+INSERT INTO lessons (title, description, order_number, class_id, video_url, audio_url, image_url, created_at, updated_at, active) VALUES
+('Урок 1: Приветствие', 'Изучаем основные приветствия на английском языке', 1, 1, 'https://example.com/video1.mp4', 'https://example.com/audio1.mp3', 'https://example.com/image1.jpg', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, true),
+('Урок 2: Числа', 'Изучаем числа от 1 до 20', 2, 1, 'https://example.com/video2.mp4', 'https://example.com/audio2.mp3', 'https://example.com/image2.jpg', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, true),
+('Урок 1: Квадратные уравнения', 'Решение квадратных уравнений', 1, 2, 'https://example.com/video3.mp4', 'https://example.com/audio3.mp3', 'https://example.com/image3.jpg', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, true),
+('Урок 1: Present Simple', 'Настоящее простое время в английском языке', 1, 3, 'https://example.com/video4.mp4', 'https://example.com/audio4.mp3', 'https://example.com/image4.jpg', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, true);
+
+-- Тестовые слова для уроков английского языка
+INSERT INTO words (word, translation, example, pronunciation, lesson_id, audio_url, image_url, created_at, updated_at, active) VALUES
+('Hello', 'Привет', 'Hello, how are you?', 'həˈloʊ', 1, 'https://example.com/hello.mp3', 'https://example.com/hello.jpg', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, true),
+('Goodbye', 'До свидания', 'Goodbye, see you later!', 'ˌɡʊdˈbaɪ', 1, 'https://example.com/goodbye.mp3', 'https://example.com/goodbye.jpg', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, true),
+('One', 'Один', 'I have one apple.', 'wʌn', 2, 'https://example.com/one.mp3', 'https://example.com/one.jpg', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, true),
+('Two', 'Два', 'I have two cats.', 'tuː', 2, 'https://example.com/two.mp3', 'https://example.com/two.jpg', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, true),
+('Work', 'Работать', 'I work every day.', 'wɜːrk', 4, 'https://example.com/work.mp3', 'https://example.com/work.jpg', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, true),
+('Study', 'Изучать', 'I study English.', 'ˈstʌdi', 4, 'https://example.com/study.mp3', 'https://example.com/study.jpg', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, true);
+
+-- Тестовый прогресс студентов
+INSERT INTO student_progress (student_id, lesson_id, word_id, score, attempts, last_attempt_at, completed_at, completed, created_at, updated_at) VALUES
+(1, 1, 1, 85, 2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(1, 1, 2, 90, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(1, 2, 3, 75, 3, CURRENT_TIMESTAMP, NULL, false, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(2, 3, NULL, 95, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(3, 4, 5, 80, 2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP); 
