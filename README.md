@@ -188,3 +188,12 @@ java -jar target/anecole-0.0.1-SNAPSHOT.jar
 ## 📞 Поддержка
 
 Для вопросов и предложений создавайте issues в репозитории проекта. 
+
+## Swagger (OpenAPI)
+
+Документация и тестирование API доступны по адресу:
+
+- [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+- [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
+
+Swagger генерируется автоматически на основе аннотаций Spring. 
