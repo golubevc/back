@@ -33,9 +33,9 @@ mvn spring-boot:run
 curl -X POST http://localhost:8080/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{
-    "username": "teststudent",
+
     "email": "test@school.com",
-    "password": "password",
+
     "firstName": "Тест",
     "lastName": "Студент",
     "role": "STUDENT",
@@ -46,8 +46,7 @@ curl -X POST http://localhost:8080/api/auth/register \
 curl -X POST http://localhost:8080/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{
-    "username": "student1",
-    "password": "password"
+  
   }'
 ```
 
@@ -66,25 +65,20 @@ curl http://localhost:8080/api/teachers
 ## Тестовые аккаунты для входа
 
 ### Студенты
-- **student1** / password (5 класс)
-- **student2** / password (6 класс)
-- **student3** / password (7 класс)
+
 
 ### Учителя
-- **teacher1** / password (Английский язык)
-- **teacher2** / password (Математика)
-- **teacher3** / password (История)
+
 
 ### Администратор
-- **admin** / password
+
 
 ## H2 Database Console
 Для просмотра базы данных:
 1. Откройте http://localhost:8080/api/h2-console
 2. Введите настройки:
    - **JDBC URL**: `jdbc:h2:mem:anecoledb`
-   - **Username**: `sa`
-   - **Password**: `password`
+ 
 3. Нажмите "Connect"
 
 ## Возможные проблемы
