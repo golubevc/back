@@ -62,4 +62,9 @@ public class WordService {
         word.setLesson(lesson);
         return wordRepository.save(word);
     }
+    
+    public List<Word> searchWordsByLesson(Long lessonId, String query) {
+        return wordRepository.findByLessonIdAndWordContainingIgnoreCaseOrLessonIdAndTranslationContainingIgnoreCase(
+                lessonId, query);
+    }
 } 

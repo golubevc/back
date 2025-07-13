@@ -198,6 +198,16 @@ public class UserService {
         return userRepository.findByEmailVerifiedTrue();
     }
     
+    public User getCurrentUser() {
+        // Получаем текущего пользователя из контекста безопасности
+        String username = org.springframework.security.core.context.SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
+        
+        return getUserByUsername(username);
+    }
+    
     public List<User> getUnverifiedUsers() {
         return userRepository.findByEmailVerifiedFalse();
     }

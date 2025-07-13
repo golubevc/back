@@ -40,4 +40,12 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
     
     @Query("SELECT l FROM Lesson l WHERE l.classEntity.id = :classId AND l.active = :active")
     List<Lesson> findByClassIdAndActive(@Param("classId") Long classId, @Param("active") boolean active);
+    
+    // Методы для поиска
+    @Query("SELECT l FROM Lesson l WHERE l.title LIKE %:query% OR l.description LIKE %:query%")
+    List<Lesson> findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(@Param("query") String query);
+    
+    @Query("SELECT l FROM Lesson l WHERE l.classEntity.id = :classId AND (l.title LIKE %:query% OR l.description LIKE %:query%)")
+    List<Lesson> findByClassIdAndTitleContainingIgnoreCaseOrClassIdAndDescriptionContainingIgnoreCase(
+            @Param("classId") Long classId, @Param("query") String query);
 } 

@@ -1,0 +1,209 @@
+config:
+  target: 'http://localhost:8080/api'
+  phases:
+    # Фаза разогрева
+    - duration: 30
+      arrivalRate: 2
+      name: "Warm up"
+    # Основная нагрузка
+    - duration: 120
+      arrivalRate: 10
+      name: "Main load"
+    # Пиковая нагрузка
+    - duration: 60
+      arrivalRate: 20
+      name: "Peak load"
+    # Снижение нагрузки
+    - duration: 60
+      arrivalRate: 5
+      name: "Cool down"
+  
+  # Глобальные переменные
+  variables:
+    studentUsername: "student1"
+    studentPassword: "password"
+    teacherUsername: "teacher1"
+    teacherPassword: "password"
+    adminUsername: "admin"
+    adminPassword: "password"
+  
+  # Обработка ответов
+  processor: "./load-testing-processor.js"
+  
+  # HTTP настройки
+  http:
+    timeout: 30
+    pool: 10
+    headers:
+      Content-Type: "application/json"
+
+# Сценарии тестирования
+scenarios:
+  # Сценарий для студентов
+  - name: "Student Flow"
+    weight: 60
+    flow:
+      # Логин студента
+      - post:
+          url: "/auth/login"
+          json:
+            username: "{{ studentUsername }}"
+            password: "{{ studentPassword }}"
+          capture:
+            - json: "$.token"
+              as: "studentToken"
+      
+      # Получение информации о пользователе
+      - get:
+          url: "/users/me"
+          headers:
+            Authorization: "Bearer {{ studentToken }}"
+      
+      # Получение статистики дашборда
+      - get:
+          url: "/stats/dashboard"
+          headers:
+            Authorization: "Bearer {{ studentToken }}"
+      
+      # Получение уроков
+      - get:
+          url: "/lessons"
+          headers:
+            Authorization: "Bearer {{ studentToken }}"
+      
+      # Поиск уроков
+      - get:
+          url: "/search/lessons?query=приветствие"
+          headers:
+            Authorization: "Bearer {{ studentToken }}"
+      
+      # Получение прогресса студента
+      - get:
+          url: "/students/1/progress"
+          headers:
+            Authorization: "Bearer {{ studentToken }}"
+      
+      # Обновление прогресса по слову
+      - post:
+          url: "/students/1/progress/word/1"
+          headers:
+            Authorization: "Bearer {{ studentToken }}"
+          json:
+            score: 85
+            completed: true
+
+  # Сценарий для учителей
+  - name: "Teacher Flow"
+    weight: 30
+    flow:
+      # Логин учителя
+      - post:
+          url: "/auth/login"
+          json:
+            username: "{{ teacherUsername }}"
+            password: "{{ teacherPassword }}"
+          capture:
+            - json: "$.token"
+              as: "teacherToken"
+      
+      # Получение классов
+      - get:
+          url: "/classes"
+          headers:
+            Authorization: "Bearer {{ teacherToken }}"
+      
+      # Получение статистики учителя
+      - get:
+          url: "/stats/teacher/2"
+          headers:
+            Authorization: "Bearer {{ teacherToken }}"
+      
+      # Получение уроков класса
+      - get:
+          url: "/lessons/class/1"
+          headers:
+            Authorization: "Bearer {{ teacherToken }}"
+      
+      # Поиск слов
+      - get:
+          url: "/search/words?query=hello"
+          headers:
+            Authorization: "Bearer {{ teacherToken }}"
+
+  # Сценарий для администраторов
+  - name: "Admin Flow"
+    weight: 10
+    flow:
+      # Логин администратора
+      - post:
+          url: "/auth/login"
+          json:
+            username: "{{ adminUsername }}"
+            password: "{{ adminPassword }}"
+          capture:
+            - json: "$.token"
+              as: "adminToken"
+      
+      # Получение всех пользователей
+      - get:
+          url: "/users"
+          headers:
+            Authorization: "Bearer {{ adminToken }}"
+      
+      # Получение статистики пользователей
+      - get:
+          url: "/users/stats/count"
+          headers:
+            Authorization: "Bearer {{ adminToken }}"
+      
+      # Получение пользователей по роли
+      - get:
+          url: "/users/role/STUDENT"
+          headers:
+            Authorization: "Bearer {{ adminToken }}"
+      
+      # Поиск пользователей
+      - get:
+          url: "/users/search?term=алексей"
+          headers:
+            Authorization: "Bearer {{ adminToken }}"
+
+# Настройки отчетов
+reports:
+  - name: "Load Test Report"
+    format: "json"
+    destination: "./reports/load-test-report.json"
+  
+  - name: "HTML Report"
+    format: "html"
+    destination: "./reports/load-test-report.html"
+
+# Настройки мониторинга
+monitoring:
+  # Проверки производительности
+  thresholds:
+    - metric: "response.time.p95"
+      threshold: 2000
+      abortOnFail: false
+    
+    - metric: "response.time.p99"
+      threshold: 5000
+      abortOnFail: false
+    
+    - metric: "http.response_time"
+      threshold: 1000
+      abortOnFail: false
+    
+    - metric: "http.codes.200"
+      threshold: 95
+      abortOnFail: false
+    
+    - metric: "http.codes.500"
+      threshold: 1
+      abortOnFail: true
+
+# Настройки логирования
+logging:
+  level: "info"
+  format: "json"
+  destination: "./logs/load-test.log" 

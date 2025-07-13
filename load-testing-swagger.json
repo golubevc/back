@@ -1,0 +1,764 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Anecole Backend API - Load Testing",
+    "description": "API спецификация для нагрузочного тестирования образовательной платформы Anecole",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Anecole Development Team",
+      "email": "dev@anecole.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/api",
+      "description": "Local Development Server"
+    },
+    {
+      "url": "http://10.10.3.4:8080/api",
+      "description": "Production Server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "AuthRequest": {
+        "type": "object",
+        "required": ["username", "password"],
+        "properties": {
+          "username": {
+            "type": "string",
+            "example": "student1"
+          },
+          "password": {
+            "type": "string",
+            "example": "password"
+          }
+        }
+      },
+      "AuthResponse": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "username": {
+            "type": "string",
+            "example": "student1"
+          },
+          "email": {
+            "type": "string",
+            "example": "student1@school.com"
+          },
+          "firstName": {
+            "type": "string",
+            "example": "Алексей"
+          },
+          "lastName": {
+            "type": "string",
+            "example": "Иванов"
+          },
+          "role": {
+            "type": "string",
+            "enum": ["STUDENT", "TEACHER", "ADMIN"],
+            "example": "STUDENT"
+          },
+          "grade": {
+            "type": "integer",
+            "example": 5
+          },
+          "school": {
+            "type": "string",
+            "example": "Школа №1"
+          }
+        }
+      },
+      "Lesson": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "title": {
+            "type": "string",
+            "example": "Урок 1: Приветствие"
+          },
+          "description": {
+            "type": "string",
+            "example": "Изучаем основные приветствия на английском языке"
+          },
+          "orderNumber": {
+            "type": "integer",
+            "example": 1
+          },
+          "active": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "Word": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "word": {
+            "type": "string",
+            "example": "hello"
+          },
+          "translation": {
+            "type": "string",
+            "example": "привет"
+          },
+          "example": {
+            "type": "string",
+            "example": "Hello, how are you?"
+          },
+          "pronunciation": {
+            "type": "string",
+            "example": "həˈloʊ"
+          }
+        }
+      },
+      "StudentProgress": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "score": {
+            "type": "integer",
+            "example": 85
+          },
+          "completed": {
+            "type": "boolean",
+            "example": true
+          },
+          "word": {
+            "$ref": "#/components/schemas/Word"
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "tags": ["Аутентификация"],
+        "summary": "Вход в систему",
+        "description": "Высокочастотный эндпоинт для аутентификации пользователей",
+        "operationId": "login",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Успешная аутентификация",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Неверные учетные данные"
+          },
+          "500": {
+            "description": "Внутренняя ошибка сервера"
+          }
+        }
+      }
+    },
+    "/auth/validate": {
+      "post": {
+        "tags": ["Аутентификация"],
+        "summary": "Валидация токена",
+        "description": "Проверка валидности JWT токена",
+        "operationId": "validateToken",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Токен валиден"
+          },
+          "401": {
+            "description": "Токен невалиден"
+          }
+        }
+      }
+    },
+    "/users/me": {
+      "get": {
+        "tags": ["Пользователи"],
+        "summary": "Получить текущего пользователя",
+        "description": "Получение информации о текущем аутентифицированном пользователе",
+        "operationId": "getCurrentUser",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Информация о пользователе",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Не авторизован"
+          }
+        }
+      }
+    },
+    "/lessons": {
+      "get": {
+        "tags": ["Уроки"],
+        "summary": "Получить все уроки",
+        "description": "Получение списка всех доступных уроков",
+        "operationId": "getAllLessons",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список уроков",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Lesson"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/lessons/{id}": {
+      "get": {
+        "tags": ["Уроки"],
+        "summary": "Получить урок по ID",
+        "description": "Получение информации о конкретном уроке",
+        "operationId": "getLessonById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 1
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Информация об уроке",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Lesson"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Урок не найден"
+          }
+        }
+      }
+    },
+    "/lessons/{lessonId}/words": {
+      "get": {
+        "tags": ["Слова"],
+        "summary": "Получить слова урока",
+        "description": "Получение списка слов для конкретного урока",
+        "operationId": "getLessonWords",
+        "parameters": [
+          {
+            "name": "lessonId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 1
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список слов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Word"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/students/{id}/progress": {
+      "get": {
+        "tags": ["Прогресс"],
+        "summary": "Получить прогресс студента",
+        "description": "Получение прогресса обучения студента",
+        "operationId": "getStudentProgress",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 1
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Прогресс студента",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StudentProgress"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/students/{studentId}/progress/word/{wordId}": {
+      "post": {
+        "tags": ["Прогресс"],
+        "summary": "Обновить прогресс по слову",
+        "description": "Обновление прогресса изучения конкретного слова",
+        "operationId": "updateWordProgress",
+        "parameters": [
+          {
+            "name": "studentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 1
+          },
+          {
+            "name": "wordId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 1
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "score": {
+                    "type": "integer",
+                    "example": 85
+                  },
+                  "completed": {
+                    "type": "boolean",
+                    "example": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Прогресс обновлен"
+          },
+          "400": {
+            "description": "Неверные данные"
+          }
+        }
+      }
+    },
+    "/stats/dashboard": {
+      "get": {
+        "tags": ["Статистика"],
+        "summary": "Получить статистику дашборда",
+        "description": "Получение общей статистики для дашборда",
+        "operationId": "getDashboardStats",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Статистика дашборда",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "totalLessons": {
+                      "type": "integer",
+                      "example": 11
+                    },
+                    "totalWords": {
+                      "type": "integer",
+                      "example": 32
+                    },
+                    "activeLessons": {
+                      "type": "integer",
+                      "example": 10
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stats/student/{studentId}": {
+      "get": {
+        "tags": ["Статистика"],
+        "summary": "Получить статистику студента",
+        "description": "Получение статистики обучения конкретного студента",
+        "operationId": "getStudentStats",
+        "parameters": [
+          {
+            "name": "studentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 1
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Статистика студента",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "completedWords": {
+                      "type": "integer",
+                      "example": 15
+                    },
+                    "averageScore": {
+                      "type": "number",
+                      "example": 87.5
+                    },
+                    "totalLessons": {
+                      "type": "integer",
+                      "example": 8
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/search/lessons": {
+      "get": {
+        "tags": ["Поиск"],
+        "summary": "Поиск уроков",
+        "description": "Поиск уроков по названию или описанию",
+        "operationId": "searchLessons",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "приветствие"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Результаты поиска",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Lesson"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/search/words": {
+      "get": {
+        "tags": ["Поиск"],
+        "summary": "Поиск слов",
+        "description": "Поиск слов по названию или переводу",
+        "operationId": "searchWords",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "hello"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Результаты поиска",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Word"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/classes": {
+      "get": {
+        "tags": ["Классы"],
+        "summary": "Получить все классы",
+        "description": "Получение списка всех классов",
+        "operationId": "getAllClasses",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список классов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer",
+                        "example": 1
+                      },
+                      "name": {
+                        "type": "string",
+                        "example": "5А - Английский язык"
+                      },
+                      "description": {
+                        "type": "string",
+                        "example": "Английский язык для 5 класса А"
+                      },
+                      "grade": {
+                        "type": "integer",
+                        "example": 5
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/classes/{id}": {
+      "get": {
+        "tags": ["Классы"],
+        "summary": "Получить класс по ID",
+        "description": "Получение информации о конкретном классе",
+        "operationId": "getClassById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 1
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Информация о классе",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "name": {
+                      "type": "string",
+                      "example": "5А - Английский язык"
+                    },
+                    "description": {
+                      "type": "string",
+                      "example": "Английский язык для 5 класса А"
+                    },
+                    "grade": {
+                      "type": "integer",
+                      "example": 5
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Класс не найден"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Аутентификация",
+      "description": "Эндпоинты для аутентификации и авторизации"
+    },
+    {
+      "name": "Пользователи",
+      "description": "Управление пользователями"
+    },
+    {
+      "name": "Уроки",
+      "description": "Управление уроками"
+    },
+    {
+      "name": "Слова",
+      "description": "Управление словами"
+    },
+    {
+      "name": "Классы",
+      "description": "Управление классами"
+    },
+    {
+      "name": "Прогресс",
+      "description": "Отслеживание прогресса обучения"
+    },
+    {
+      "name": "Статистика",
+      "description": "Аналитика и статистика"
+    },
+    {
+      "name": "Поиск",
+      "description": "Поиск по контенту"
+    }
+  ]
+} 

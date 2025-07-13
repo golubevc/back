@@ -117,4 +117,13 @@ public class LessonService {
         
         return null; // No previous lesson
     }
+    
+    public List<Lesson> searchLessons(String query) {
+        return lessonRepository.findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(query);
+    }
+    
+    public List<Lesson> searchLessonsByClass(Long classId, String query) {
+        return lessonRepository.findByClassIdAndTitleContainingIgnoreCaseOrClassIdAndDescriptionContainingIgnoreCase(
+                classId, query);
+    }
 } 

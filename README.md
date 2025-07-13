@@ -51,6 +51,13 @@ cd back
 - `POST /api/auth/register` - Регистрация
 - `POST /api/auth/validate` - Валидация токена
 
+### Пользователи
+- `GET /api/users/me` - Получить текущего пользователя
+- `GET /api/users` - Все пользователи (ADMIN)
+- `GET /api/users/{id}` - Пользователь по ID
+- `PUT /api/users/{id}` - Обновить пользователя
+- `GET /api/users/stats/count` - Статистика пользователей (ADMIN)
+
 ### Студенты
 - `GET /api/students` - Все студенты
 - `GET /api/students/{id}` - Студент по ID
@@ -99,6 +106,20 @@ cd back
 - `GET /api/lesson-builder/teacher/{teacherId}/drafts` - Черновики учителя
 - `GET /api/lesson-builder/student/{studentId}/lessons` - Уроки студента
 
+### Статистика и аналитика
+- `GET /api/stats/dashboard` - Общая статистика дашборда
+- `GET /api/stats/student/{id}` - Статистика студента
+- `GET /api/stats/teacher/{id}` - Статистика учителя
+- `GET /api/stats/class/{id}` - Статистика класса
+- `GET /api/stats/lesson/{id}` - Статистика урока
+
+### Поиск
+- `GET /api/search/lessons?query=...` - Поиск уроков
+- `GET /api/search/words?query=...` - Поиск слов
+- `GET /api/search/global?query=...` - Общий поиск
+- `GET /api/search/lessons/class/{classId}?query=...` - Поиск уроков в классе
+- `GET /api/search/words/lesson/{lessonId}?query=...` - Поиск слов в уроке
+
 ## 🔐 Безопасность
 
 ### JWT Аутентификация
@@ -132,7 +153,8 @@ cd back
 
 - [API Documentation](API_DOCUMENTATION.md) - Полная документация API
 - [Test Accounts](TEST_ACCOUNTS.md) - Список тестовых аккаунтов
-- [Integration Guide](../front-mono/INTEGRATION.md) - Руководство по интеграции с фронтендом
+- [Integration Guide](INTEGRATION.md) - Руководство по интеграции с фронтендом
+- [Frontend Integration Recommendations](FRONTEND_INTEGRATION_RECOMMENDATIONS.md) - Рекомендации по разработке React приложения
 
 ## 🏗️ Архитектура
 

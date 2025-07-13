@@ -34,6 +34,17 @@ public class UserController {
         }
     }
     
+    @GetMapping("/me")
+    public ResponseEntity<User> getCurrentUser() {
+        try {
+            User user = userService.getCurrentUser();
+            return ResponseEntity.ok(user);
+        } catch (Exception e) {
+            logger.error("Error getting current user: {}", e.getMessage(), e);
+            return ResponseEntity.notFound().build();
+        }
+    }
+    
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {

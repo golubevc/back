@@ -1,0 +1,217 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: anecole-postgres
+    environment:
+      POSTGRES_DB: anecole_db
+      POSTGRES_USER: anecole_user
+      POSTGRES_PASSWORD: anecole_password
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./src/main/resources/init.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./src/main/resources/data.sql:/docker-entrypoint-initdb.d/02-data.sql
+    networks:
+      - anecole-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U anecole_user -d anecole_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    # Ограничения ресурсов для обычного docker-compose
+    mem_limit: 512m
+    cpus: 0.5
+    # Ограничения и масштабирование для Swarm
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: anecole-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    networks:
+      - anecole-network
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    restart: unless-stopped
+    profiles:
+      - monitoring
+    mem_limit: 512m
+    cpus: 0.5
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: anecole-grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_USERS_ALLOW_SIGN_UP=false
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    networks:
+      - anecole-network
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+    profiles:
+      - monitoring
+    mem_limit: 256m
+    cpus: 0.2
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+
+  # Пример масштабируемого backend-сервиса
+  # anecole-backend:
+  #   image: anecole-backend:latest
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "8080:8080"
+  #   networks:
+  #     - anecole-network
+  #   depends_on:
+  #     - postgres
+  #   restart: unless-stopped
+  #   mem_limit: 1024m
+  #   cpus: 1.0
+  #   # Масштабирование и автоскейлинг для Swarm
+  #   deploy:
+  #     mode: replicated
+  #     replicas: 2 # стартовое количество реплик
+  #     resources:
+  #       limits:
+  #         cpus: '1.0'
+  #         memory: 1024M
+  #       reservations:
+  #         cpus: '0.5'
+  #         memory: 512M
+  #     # Автоскейлинг по CPU (Swarm only)
+  #     placement:
+  #       max_replicas_per_node: 2
+  #     # x-autoscaling (требует внешнего контроллера или docker swarm-autoscaler)
+  #     # x-autoscaling:
+  #     #   min_replicas: 2
+  #     #   max_replicas: 5
+  #     #   cpu_percent: 70
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: anecole-node-exporter
+    networks:
+      - anecole-network
+    ports:
+      - "9100:9100"
+    restart: unless-stopped
+    profiles:
+      - monitoring
+    mem_limit: 128m
+    cpus: 0.1
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 128M
+        reservations:
+          cpus: '0.05'
+          memory: 64M
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: anecole-cadvisor
+    networks:
+      - anecole-network
+    ports:
+      - "8081:8080"
+    restart: unless-stopped
+    profiles:
+      - monitoring
+    mem_limit: 256m
+    cpus: 0.2
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+
+volumes:
+  postgres_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+  redis_data:
+    driver: local
+  elasticsearch_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+networks:
+  anecole-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16 

@@ -4,6 +4,7 @@ com/school/anecole/dto/UserStats.class
 com/school/anecole/dto/LessonBuilderRequest.class
 com/school/anecole/AnecoleApplication.class
 com/school/anecole/controller/WordController.class
+com/school/anecole/controller/StatsController.class
 com/school/anecole/controller/UserController.class
 com/school/anecole/controller/ClassController.class
 com/school/anecole/security/JwtAuthenticationFilter.class
@@ -38,5 +39,6 @@ com/school/anecole/dto/AuthRequest.class
 com/school/anecole/service/StudentService.class
 com/school/anecole/security/CustomUserDetailsService.class
 com/school/anecole/security/UserPrincipal.class
+com/school/anecole/controller/SearchController.class
 com/school/anecole/controller/StudentController.class
 com/school/anecole/repository/LessonRepository.class

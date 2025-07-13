@@ -32,4 +32,9 @@ public interface WordRepository extends JpaRepository<Word, Long> {
     List<Word> findByLessonId(@Param("lessonId") Long lessonId);
     
     List<Word> findByWordContainingIgnoreCaseOrTranslationContainingIgnoreCase(String word, String translation);
+    
+    // Метод для поиска слов по уроку
+    @Query("SELECT w FROM Word w WHERE w.lesson.id = :lessonId AND (w.word LIKE %:query% OR w.translation LIKE %:query%)")
+    List<Word> findByLessonIdAndWordContainingIgnoreCaseOrLessonIdAndTranslationContainingIgnoreCase(
+            @Param("lessonId") Long lessonId, @Param("query") String query);
 } 
